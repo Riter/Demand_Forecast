@@ -4,6 +4,7 @@ Demand Forecast service using quantile regression
 ## Project Organization
 ------------
 
+```
 ├── README.md
 ├── app.py      <--- FastAPI app
 ├── data
@@ -11,7 +12,7 @@ Demand Forecast service using quantile regression
 │   ├── processed   <--- The final, canonical data sets for modeling
 │   │   └── predictions.csv
 │   └── raw     <--- The original, immutable data dump
-│       ├── demand_orders.csv   <--- Raw about orders
+│       ├── demand_orders.csv   <--- Raw data about orders
 │       ├── sales.csv   <--- Raw aggregated data about orders
 │       └── sales_with_features.csv
 ├── evaluate.py     <--- Evaluating model performance
@@ -23,5 +24,6 @@ Demand Forecast service using quantile regression
 ├── notebooks
 │   └── EDA.ipynb
 └── training.py    <--- ClearML pipeline for model training
+```
 
---------
+------------
