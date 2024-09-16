@@ -164,7 +164,7 @@ def run_pipeline(
 
 def main(
     orders_url: str = "https://disk.yandex.ru/d/OK5gyMuEfhJA0g",
-    model_path: str = "models/model.pkl",
+    model_path: str = "../models/model.pkl",
     debug: bool = False,
 ) -> None:
     """Main function

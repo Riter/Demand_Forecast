@@ -11,7 +11,7 @@ from fastapi import UploadFile
 from pydantic import BaseModel
 from pydantic import Field
 
-PREDICTIONS_LOCAL_PATH = os.path.join(sys.path[0], "data/predictions.csv")
+PREDICTIONS_LOCAL_PATH = os.path.join(sys.path[0], "../data/processed/predictions.csv")
 
 app = FastAPI()
 predictions = None
@@ -104,11 +104,16 @@ def low_stock_sku_list(request_data: LowStockSKURequest) -> dict:
 
         assert predictions is not None, "Predictions are not loaded"
 
+        column = f"pred_{horizon_days}d_q{int(confidence_level * 100)}"
         low_stock_list = []
+
         for sku in skus:
-            sku_id, stock = sku.sku_id, sku.stock
-            sku_prediction = predictions[predictions["sku_id"] == sku_id][f"pred_{horizon_days}d_q{int(confidence_level*100)}"].values[0]
-            if stock < sku_prediction:
+            sku_id = sku.sku_id
+            stock = sku.stock
+            predictions_sku = predictions[predictions["sku_id"] == sku_id]
+
+            stock_level = stock - int(np.ceil(predictions_sku[column].values[0]))
+            if stock_level <= 0:
                 low_stock_list.append(sku_id)
 
         return {"sku_list": low_stock_list}
