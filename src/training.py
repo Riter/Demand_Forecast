@@ -15,6 +15,22 @@ from model import MultiTargetModel
     task_type=TaskTypes.data_processing,
 )
 def fetch_orders(orders_url: str) -> pd.DataFrame:
+    """
+    Download orders data from Yandex Disk public link.
+
+    This function is used by the pipeline as a component with return value 'orders'.
+
+    Parameters
+    ----------
+    orders_url : str
+        Public link to the orders data on Yandex Disk.
+
+    Returns
+    -------
+    pd.DataFrame
+        Orders data downloaded from Yandex Disk.
+    """
+    
     import requests
     from urllib.parse import urlencode
     import pandas as pd
@@ -44,6 +60,19 @@ def fetch_orders(orders_url: str) -> pd.DataFrame:
     task_type=TaskTypes.data_processing,
 )
 def extract_sales(df_orders: pd.DataFrame) -> pd.DataFrame:
+    """
+    Extract sales data from orders data.
+
+    Parameters
+    ----------
+    df_orders : pd.DataFrame
+        Orders data.
+
+    Returns
+    -------
+    pd.DataFrame
+        Sales data.
+    """
     import pandas as pd
     import numpy as np
 
@@ -103,6 +132,41 @@ def extract_features(
     features: Dict[str, Tuple[str, int, str, Optional[int]]],
     targets: Dict[str, Tuple[str, int]],
 ) -> pd.DataFrame:
+    """
+    Extract features from sales data.
+
+    Parameters
+    ----------
+    df_sales : pd.DataFrame
+        Sales data
+    features : Dict[str, Tuple[str, int, str, Optional[int]]]
+        Dictionary with the following structure:
+        {
+            "feature_name": ("agg_col", "days", "aggregation_function", "quantile"),
+            ...
+        }
+        where:
+            - feature_name: name of the feature to add
+            - agg_col: name of the column to aggregate
+            - days: number of days to include into rolling window
+            - aggregation_function: one of the following: "quantile", "avg"
+            - quantile: quantile to compute (only for "quantile" aggregation_function)
+    targets : Dict[str, Tuple[str, int]]
+        Dictionary with the following structure:
+        {
+            "target_name": ("agg_col", "days"),
+            ...
+        }
+        where:
+            - target_name: name of the target to add
+            - agg_col: name of the column to aggregate
+            - days: number of days to include into rolling window
+
+    Returns
+    -------
+    df_features : pd.DataFrame
+        DataFrame with extracted features
+    """
     from features import add_features, add_targets
 
     print("Extracting features...")
@@ -129,6 +193,19 @@ def split_train_test(
     df_features: pd.DataFrame,
     test_days: int,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Split the data into train and test sets.
+
+    The last `test_days` days are held out for testing.
+
+    Parameters:
+        df_features (pd.DataFrame): The input DataFrame containing the features.
+        test_days (int): The number of days to include in the test set.
+
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame]:
+        A tuple containing the train and test DataFrames.
+    """
     import pandas as pd  # noqa
     from model import split_train_test
 
@@ -152,6 +229,25 @@ def fit_model(
     quantiles: List[float],
     horizons: List[int],
 ) -> MultiTargetModel:
+    """
+    Train a production model on the given data.
+
+    Parameters
+    ----------
+    df_features : pd.DataFrame
+        DataFrame containing the features to train on.
+    features : List[str]
+        List of feature names.
+    quantiles : List[float]
+        List of quantiles to predict.
+    horizons : List[int]
+        List of horizons to predict.
+
+    Returns
+    -------
+    MultiTargetModel
+        Trained production model.
+    """
     from model import MultiTargetModel
 
     print("Training production model...")
@@ -196,6 +292,25 @@ def evaluate(
     quantiles: List[float],
     horizons: List[int],
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Evaluate a model on test data.
+
+    Parameters
+    ----------
+    eval_model : MultiTargetModel
+        Model to evaluate.
+    df_test : pd.DataFrame
+        Test data to evaluate on.
+    quantiles : List[float]
+        Quantiles to evaluate on.
+    horizons : List[int]
+        Horizons to evaluate on.
+
+    Returns
+    -------
+    Tuple[pd.DataFrame, pd.DataFrame]
+        Tuple containing the losses and the predictions.
+    """
     from evaluate import evaluate_model
 
     print("Evaluating model...")
@@ -223,6 +338,24 @@ def deploy_model(
     losses: pd.DataFrame,
     df_pred: pd.DataFrame,
 ) -> None:
+    """
+    Deploy a model to a given path.
+
+    Parameters
+    ----------
+    model : MultiTargetModel
+        Model to deploy.
+    model_path : str
+        Path to save the model.
+    losses : pd.DataFrame
+        Evaluation losses.
+    df_pred : pd.DataFrame
+        Evaluation predictions.
+
+    Returns
+    -------
+    None
+    """
     import pickle
 
     print("Check model quality...")
@@ -253,6 +386,30 @@ def run_pipeline(
     quantiles: List[float],
     horizons: List[int],
 ) -> None:
+    """
+    Training pipeline.
+
+    Parameters
+    ----------
+    orders_url : str
+        URL to the orders data on Yandex Disk
+    test_days : int
+        Number of days to include into test set
+    model_path : str
+        Path to save the model
+    features : Dict[str, Tuple[str, int, str, Optional[int]]]
+        Features to add to the model
+    targets : Dict[str, Tuple[str, int]]
+        Targets to predict
+    quantiles : List[float]
+        Quantiles to predict
+    horizons : List[int]
+        Prediction horizons
+
+    Returns
+    -------
+    None
+    """
     orders_df = fetch_orders(orders_url)
 
     df_sales = extract_sales(orders_df)

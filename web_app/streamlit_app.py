@@ -4,6 +4,15 @@ import pandas as pd
 
 
 def app():
+    """
+    The main function of the streamlit app.
+
+    The app asks user for some parameters: sku id, stock, horizon days and confidence level.
+    Then it makes a request to the FastAPI service with the given parameters to get:
+    - How much to order
+    - Stock level forecast
+    - Low stock sku list
+    """
     st.title("Hello it is Demand Forecast service!")
 
 

@@ -13,6 +13,15 @@ from clearml.automation.controller import PipelineDecorator
     task_type=TaskTypes.data_processing,
 )
 def fetch_orders(orders_url: str) -> pd.DataFrame:
+    """
+    Download orders data from Yandex Disk and return as a DataFrame.
+
+    Args:
+        orders_url: The public URL of the orders data on Yandex Disk.
+
+    Returns:
+        A DataFrame with the downloaded orders data.
+    """
     import requests
     from urllib.parse import urlencode
     import pandas as pd
@@ -42,6 +51,24 @@ def fetch_orders(orders_url: str) -> pd.DataFrame:
     task_type=TaskTypes.data_processing,
 )
 def extract_sales(df_orders: pd.DataFrame) -> pd.DataFrame:
+    """
+    Extract sales data from orders data.
+
+    The function takes a DataFrame with orders data, extracts the sales data by
+    grouping the orders by day, sku_id, sku, and price, and summing the quantity.
+    The function fills in missing sku and price values from the orders data, and
+    returns the resulting DataFrame.
+
+    Parameters
+    ----------
+    df_orders : pd.DataFrame
+        A DataFrame with orders data.
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame with the extracted sales data.
+    """
     import pandas as pd
     import numpy as np
 
@@ -100,6 +127,31 @@ def extract_features(
     df_sales: pd.DataFrame,
     features: Dict[str, Tuple[str, int, str, Optional[int]]],
 ) -> pd.DataFrame:
+    """
+    Extract features from sales data.
+
+    Parameters
+    ----------
+    df_sales : pd.DataFrame
+        Sales data to extract features from.
+    features : Dict[str, Tuple[str, int, str, Optional[int]]]
+        Dictionary with the following structure:
+        {
+            "feature_name": ("agg_col", "days", "aggregation_function", "quantile"),
+            ...
+        }
+        where:
+            - feature_name: name of the feature to add
+            - agg_col: name of the column to aggregate
+            - int: number of days to include into rolling window
+            - aggregation_function: one of the following: "quantile", "avg"
+            - int: quantile to compute (only for "quantile" aggregation_function)
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with extracted features.
+    """
     import pandas as pd
     from features import add_features
 
@@ -127,6 +179,21 @@ def predict(
     model_path: str,
     df_features: pd.DataFrame,
 ) -> pd.DataFrame:
+    """
+    Make predictions using a pre-trained model.
+
+    Parameters
+    ----------
+    model_path : str
+        Path to the pre-trained model.
+    df_features : pd.DataFrame
+        DataFrame with features to make predictions on.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with predictions.
+    """
     import pickle
 
     print("Predicting...")
@@ -151,6 +218,32 @@ def run_pipeline(
     model_path: str,
     features: Dict[str, Tuple[str, int, str, Optional[int]]],
 ) -> None:
+    """
+    Runs the inference pipeline.
+
+    Parameters
+    ----------
+    orders_url : str
+        URL to the orders data on Yandex Disk
+    model_path : str
+        Local path of production model
+    features : Dict[str, Tuple[str, int, str, Optional[int]]]
+        Dictionary with the following structure:
+        {
+            "feature_name": ("agg_col", "days", "aggregation_function", "quantile"),
+            ...
+        }
+        where:
+            - feature_name: name of the feature to add
+            - agg_col: name of the column to aggregate
+            - int: number of days to include into rolling window
+            - aggregation_function: one of the following: "quantile", "avg"
+            - int: quantile to compute (only for "quantile" aggregation_function)
+
+    Returns
+    -------
+    None
+    """
     orders_df = fetch_orders(orders_url)
 
     df_sales = extract_sales(orders_df)
