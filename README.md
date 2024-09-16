@@ -1,5 +1,6 @@
 # Demand Forecast
-Demand Forecast service using quantile regression
+Demand forecasting and stock management are critical challenges for modern marketplaces. This project implements a demand forecasting model using quantile regression to optimize stock levels. 
+I developed a FastAPI service for inventory management and integrated the model training and inference pipelines with the MLOps tool, ClearML. Additionally, I created a web interface using Streamlit for easy interaction and visualization of key features like stock forecasts, reorder quantities, and low-stock SKU alerts.
 
 ## Usage
 
